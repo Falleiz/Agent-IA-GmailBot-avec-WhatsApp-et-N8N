@@ -1,6 +1,6 @@
 # 🤖 Agent IA WhatsApp pour la gestion intelligente des Emails Gmail avec n8n
 
-![Aperçu du projet](![image](https://github.com/user-attachments/assets/3083cd74-9e16-40f0-9fa7-059997059642)
+![Aperçu du projet](![image](https://github.com/Falleiz/Agent-IA-GmailBot-avec-WhatsApp-et-N8N/blob/main/Capture%20d%E2%80%99%C3%A9cran_2-7-2025_3322_falleiz.app.n8n.cloud.jpeg)
 ) 
 
 ## 📌 Présentation du projet
@@ -84,12 +84,5 @@ Le tout, de manière automatisée et contextualisée grâce à une mémoire cour
 - Ajout de fonctionnalités SMS ou Telegram
 - Sauvegarde des logs dans une base de données (SQLite, MongoDB…)
 
----
 
-## 📷 Capture d’écran
 
-👉 Insérez ici une capture du workflow `n8n` :
-
-```plaintext
-Chemin ou URL de l'image :
-/images/workflow-whatsapp-gmail.png
