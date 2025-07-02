@@ -1,7 +1,6 @@
 # 🤖 Agent IA WhatsApp pour la gestion intelligente des Emails Gmail avec n8n
 
-![Aperçu du projet](https://github.com/Falleiz/Agent-IA-GmailBot-avec-WhatsApp-et-N8N/blob/main/Capture%20d%E2%80%99%C3%A9cran_2-7-2025_3322_falleiz.app.n8n.cloud.jpeg?raw=true)
-
+![Aperçu du projet](image.png)
 
 ## 📌 Présentation du projet
 
@@ -30,13 +29,13 @@ Le tout, de manière automatisée et contextualisée grâce à une mémoire cour
 
 ## 🛠️ Technologies utilisées
 
-| Outil/Service        | Rôle principal                                 |
-|----------------------|------------------------------------------------|
-| `n8n`                | Orchestration des workflows low-code           |
-| `OpenAI` (GPT + TTS) | Compréhension, transcription et génération vocale |
-| `WhatsApp Cloud API` | Réception/envoi de messages WhatsApp           |
-| `Gmail API`          | Opérations sur les emails                      |
-| `LangChain`          | Gestion d’un agent IA structuré avec mémoire   |
+| Outil/Service        | Rôle principal                                     |
+|----------------------|----------------------------------------------------|
+| `n8n`                | Orchestration des workflows low-code               |
+| `OpenAI` (GPT + TTS) | Compréhension, transcription et génération vocale  |
+| `WhatsApp Cloud API` | Réception/envoi de messages WhatsApp               |
+| `Gmail API`          | Opérations sur les emails                          |
+| `LangChain`          | Gestion d’un agent IA structuré avec mémoire       |
 
 ---
 
@@ -49,6 +48,14 @@ Le tout, de manière automatisée et contextualisée grâce à une mémoire cour
 5. **Lecture ou gestion des emails via Gmail**
 6. **Génération vocale de la réponse**
 7. **Envoi du message audio de réponse sur WhatsApp**
+
+---
+
+## 📁 Contenu du répertoire
+
+- `Agent_IA_avec_N8N.json` : le **workflow complet** exporté depuis n8n (à importer via l’interface n8n)
+- `image.png` : aperçu visuel du projet (affiché en haut du README)
+- `README.md` : ce fichier de documentation
 
 ---
 
@@ -84,5 +91,14 @@ Le tout, de manière automatisée et contextualisée grâce à une mémoire cour
 - Ajout de fonctionnalités SMS ou Telegram
 - Sauvegarde des logs dans une base de données (SQLite, MongoDB…)
 
+---
 
+## 🤝 Contributions
 
+Les contributions sont les bienvenues ! N’hésitez pas à soumettre une issue ou une pull request.
+
+---
+
+## 📄 Licence
+
+Ce projet est open-source sous licence MIT.
