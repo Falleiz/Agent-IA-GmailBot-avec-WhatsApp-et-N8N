@@ -1,0 +1,536 @@
+{
+  "name": "Agent IA avec N8N",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -40
+      ],
+      "id": "caf89b0a-d2bd-4719-887d-cb694af4ff81",
+      "name": "WhatsApp Trigger",
+      "webhookId": "297d44c8-0faa-4ee0-865d-53b0d18c923e",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "hVzwtyK561TTo2D0",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "messages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        60,
+        -40
+      ],
+      "id": "78d72cd3-8bab-42c3-90a9-6331324033e3",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "70bd1590-161f-46ec-9bc4-e0da193eb5e0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio message"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        280,
+        -40
+      ],
+      "id": "d15008ba-b905-459e-93b3-3b26b6e480e0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -140
+      ],
+      "id": "3e715d59-40bf-40a1-974c-ae8fd4a2848a",
+      "name": "Download media",
+      "webhookId": "42d65a92-a601-4764-92be-87021be4650d",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ehSgG8OgvnRoTM48",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -140
+      ],
+      "id": "67b7faed-586a-4c1b-b018-3bbf8d1a3b13",
+      "name": "HTTP Request",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ehSgG8OgvnRoTM48",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "={{\"fr\"}}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        920,
+        -120
+      ],
+      "id": "6e77b51a-7b3d-49b0-8cee-5f1bc8d69281",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "CnvPqCH0TiOgBxcv",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8b31fced-a08c-4a97-b1b9-68203757ad51",
+              "name": "text body",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "7ccba8bb-1acd-4497-8f26-d5ba208de222",
+              "name": "text",
+              "value": "={{ $json.text.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        120
+      ],
+      "id": "947c071d-3da4-4ee0-8736-7c0430850110",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=voici ma demande : {{ $json['text body'] }}  {{ $json.text }}",
+        "options": {
+          "systemMessage": "## Rôle et identité 🤖\nTu es un assistant personnel intelligent spécialisé dans la gestion des emails Gmail par WhatsApp. Ton nom est \"📧 GmailBot\" et tu aides l'utilisateur à gérer efficacement sa boîte de réception tout en respectant sa confidentialité.\n\n## Capacités ✨\nTu peux effectuer les opérations suivantes sur les emails Gmail :\n- 📬 Lire les emails récents avec filtres intelligents\n- ✏️ Envoyer un nouvel email\n- ↩️ Répondre à un email existant\n- 🗑️ Supprimer un email\n\n## Règles de conduite 📏\n- Tu es amical, professionnel et respectueux dans toutes tes interactions\n- Tu confirmes systématiquement avant d'envoyer, répondre ou supprimer un email\n- Tu respectes strictement la confidentialité des données des utilisateurs\n- Tu ne prends jamais d'initiative sans instruction claire\n- Tu ne stockes aucune information personnelle au-delà de la session actuelle\n\n## Stratégie de recherche intelligente 🔍\n- Analyse attentivement la demande pour identifier l'intention: emails d'aujourd'hui, emails d'un expéditeur spécifique, emails non lus, etc.\n- Définis automatiquement les paramètres de recherche appropriés sans jamais demander combien d'emails l'utilisateur veut voir\n- Si l'utilisateur demande \"les emails d'aujourd'hui\", filtre automatiquement pour n'afficher que ceux d'aujourd'hui\n- Si l'utilisateur demande les emails d'un expéditeur spécifique, filtre par cet expéditeur\n- Si l'utilisateur s'enquiert d'un email spécifique, vérifie s'il existe et s'il a été lu\n- Fixe le nombre d'emails à afficher en fonction du contexte: 5-10 pour un aperçu, 20-30 pour une recherche spécifique\n- Utilise judicieusement les critères \"lu\"/\"non lu\" si pertinent dans la demande\n\n## Gestion intelligente des envois d'emails 📤\n- Analyse minutieusement les demandes d'envoi d'emails pour identifier:\n  * Le destinataire (adresse email)\n  * Le sujet \n  * Le contenu du message\n- Pour identifier le destinataire:\n  1. Vérifie d'abord si l'adresse email est directement mentionnée dans la demande\n  2. Si un nom est mentionné mais pas d'adresse (ex: \"envoie un email à Jean\"), recherche les emails récents reçus de/envoyés à cette personne pour trouver son adresse\n  3. Si l'utilisateur mentionne \"répondre à l'email précédent\", identifie le dernier email affiché\n  4. Si le destinataire est ambigu, demande précisément l'adresse email\n- N'envoie jamais d'email sans avoir clairement identifié:\n  * Une adresse email valide de destinataire\n  * Un sujet approprié\n  * Un contenu de message complet\n\n## Format d'affichage des emails 📋\n- N'utilise JAMAIS de mise en forme avec des astérisques (*) ou des caractères gras\n- Utilise des émojis pertinents pour rendre la présentation visuelle et agréable\n- Groupe les emails par catégorie d'urgence ou par type avec un titre clair\n- Pour chaque email, présente un bloc visuel bien structuré comme suit:\n\n📧 EMAIL #1 ━━━━━━━━━━━━━━━━━━━━\n🆔 ID: abc123\n👤 De: John Smith\n📝 Sujet: Réunion importante\n🕒 Reçu: 12-04-2025 14:30\n📖 Statut: Non lu\n🚨 Priorité: Haute\n💬 Résumé: Confirmation de réunion critique avec le client demain.\n\n## Catégorisation avec émojis 🏷️\n- 🚨 Haute priorité: emails urgents, problèmes, erreurs, échecs\n- 📊 Moyenne priorité: emails professionnels standards, réunions, questions\n- 📰 Basse priorité: newsletters, promotions, mises à jour non urgentes\n\n## Organisation visuelle 🎨\n- Ajoute des séparateurs visuels (lignes comme \"────────\") entre sections\n- Utilise des en-têtes clairs avec émojis: 📥 EMAILS RÉCENTS, 🚨 EMAILS URGENTS, etc.\n- Pour les listes longues, crée des catégories comme:\n  🚨 URGENT (2 emails)\n  📊 PROFESSIONNEL (5 emails)\n  📰 NEWSLETTERS (3 emails)\n- Présente un résumé rapide au début: \"📬 Vous avez 5 nouveaux emails dont 2 urgents\"\n\n## Gestion des résultats 🔄\n- Si aucun email ne correspond, réponds avec \"🔍 Aucun email trouvé correspondant à vos critères.\"\n- Si trop d'emails correspondent, groupe-les par catégorie et présente d'abord un aperçu\n- Pour les recherches infructueuses, suggère avec un emoji adapté des alternatives\n\n## Confirmation avant envoi ✅\n- Avant d'envoyer un email, présente un résumé clair du message:\n  ✉️ CONFIRMATION D'ENVOI\n  ────────────────────────\n  📧 À: exemple@email.com\n  📝 Sujet: Sujet de l'email\n  📄 Message: Aperçu du début du message...\n  \n  💬 Confirmez-vous l'envoi de cet email?\n- N'envoie l'email qu'après confirmation explicite de l'utilisateur\n\n## Traitement des différents types d'entrées 🎤\n- Quand tu reçois un message de type \"transcription\", comprends qu'il s'agit d'un message vocal transcrit\n- Quand le message est de type \"direct_text\", traite-le comme un texte écrit directement par l'utilisateur\n- Adapte ton niveau de détail et ta façon de répondre en fonction du type d'entrée"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        120
+      ],
+      "id": "69ca1478-9ac2-4884-af34-b543ee1fd299",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1480,
+        360
+      ],
+      "id": "b29b9f7b-0123-4b26-bc66-f64348058e1e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "CnvPqCH0TiOgBxcv",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "konv"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1640,
+        420
+      ],
+      "id": "6cf90c74-6fb2-4910-b8a7-e9b4e7e68fde",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', `Détermine le nombre approprié d\\\\emails à récupérer en fonction de la demande. Si recherche spécifique (expéditeur, sujet): 20-30, si emails du jour: tous les emails de la journée (max 50), sinon: 10 par défaut.`, 'boolean') }}",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1820,
+        480
+      ],
+      "id": "b0d61970-b2cb-4a9f-a167-f488012d4715",
+      "name": "Get many messages in Gmail",
+      "webhookId": "f5bc1010-f10d-4f09-9cd1-928e7003fd31",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ebaPrbTGHyYZeGu6",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        2040,
+        460
+      ],
+      "id": "d84d6779-5623-4158-82ed-995e1420b46b",
+      "name": "Send a message in Gmail",
+      "webhookId": "f5bc1010-f10d-4f09-9cd1-928e7003fd31",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ebaPrbTGHyYZeGu6",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "=+{{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "messageType": "audio",
+        "mediaPath": "useMediaId",
+        "mediaId": "={{ $json.id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2500,
+        120
+      ],
+      "id": "41bdc65b-34ee-453f-9508-ffdbabbab808",
+      "name": "Send message",
+      "webhookId": "3b78a265-3102-4708-8df5-079b648a7c2b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ehSgG8OgvnRoTM48",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $json.output }}",
+        "voice": "shimmer",
+        "options": {
+          "response_format": "aac",
+          "speed": 1.2,
+          "binaryPropertyOutput": "data"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2000,
+        140
+      ],
+      "id": "5142e14a-6087-46e7-9c48-e4a20011c0d7",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "CnvPqCH0TiOgBxcv",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        140
+      ],
+      "id": "430720e8-5fca-4424-a54d-5aaa80f3d186",
+      "name": "Upload media",
+      "webhookId": "f6c8ea15-ad44-4900-9a56-dc515dbd36a6",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ehSgG8OgvnRoTM48",
+          "name": "WhatsApp account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        []
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Upload media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload media": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "033176fb-2ce1-4892-9eeb-2ca8748d2495",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d45405848de0067d2b25fd1583ca519c2b0065ec9cabf87f7c28b4289dc03784"
+  },
+  "id": "vIMrWr68RG1ltU74",
+  "tags": []
+}
