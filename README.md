@@ -1,7 +1,7 @@
 # 🤖 Agent IA WhatsApp pour la gestion intelligente des Emails Gmail avec n8n
 
-![Aperçu du projet](![image](https://github.com/Falleiz/Agent-IA-GmailBot-avec-WhatsApp-et-N8N/blob/main/Capture%20d%E2%80%99%C3%A9cran_2-7-2025_3322_falleiz.app.n8n.cloud.jpeg)
-) 
+![Aperçu du projet](https://github.com/Falleiz/Agent-IA-GmailBot-avec-WhatsApp-et-N8N/blob/main/Capture%20d%E2%80%99%C3%A9cran_2-7-2025_3322_falleiz.app.n8n.cloud.jpeg?raw=true)
+
 
 ## 📌 Présentation du projet
 
